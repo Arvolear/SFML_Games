@@ -1,0 +1,51 @@
+
+void z_buffer(RenderWindow &window, Image &frameBuffer, vector < P > &tet)
+{
+    vector < vector < double > > zBuffer(window.getSize().y, vector < double > (window.getSize().x, 10000.0));
+
+    for (int i = 0; i < tet.size(); i++)
+    {
+        double x1 = tet[i].rec[0].x();
+        double y1 = tet[i].rec[0].y();
+        double z1 = tet[i].rec[0].z();
+        
+        double x2 = tet[i].rec[1].x();
+        double y2 = tet[i].rec[1].y();
+        double z2 = tet[i].rec[1].z();
+        
+        double x3 = tet[i].rec[2].x();
+        double y3 = tet[i].rec[2].y();
+        double z3 = tet[i].rec[2].z();
+        
+        int minX = (int)max(0.0, ceil(min(x1, min(x2, x3))));
+        int maxX = (int)min(window.getSize().x - 1.0, floor(max(x1, max(x2, x3))));
+        int minY = (int)max(0.0, ceil(min(y1, min(y2, y3))));
+        int maxY = (int)min(window.getSize().y - 1.0, floor(max(y1, max(y2, y3))));
+
+        double triangleArea = (y1 - y3) * (x2 - x3) + (y2 - y3) * (x3 - x1);
+
+        for (int y = minY; y <= maxY; y++) 
+        {
+            for (int x = minX; x <= maxX; x++) 
+            {
+                double b1 = ((y - y3) * (x2 - x3) + (y2 - y3) * (x3 - x)) / triangleArea;
+
+                double b2 = ((y - y1) * (x3 - x1) + (y3 - y1) * (x1 - x)) / triangleArea;
+
+                double b3 = ((y - y2) * (x1 - x2) + (y1 - y2) * (x2 - x)) / triangleArea;
+
+                if (b1 >= 0 && b1 <= 1 && b2 >= 0 && b2 <= 1 && b3 >= 0 && b3 <= 1) 
+                {
+                    double depth = b1 * z1 + b2 * z2 + b3 * z3;
+                    
+                    if (zBuffer[y][x] > depth) 
+                    {
+                        zBuffer[y][x] = depth; 
+                        frameBuffer.setPixel(x, y, tet[i].color);
+                    }
+                }
+            }
+        }
+    }
+}
+
