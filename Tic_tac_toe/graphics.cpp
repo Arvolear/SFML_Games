@@ -2,6 +2,8 @@
 #include "win.h"
 #include "graphics.h"
 
+#include <cmath>
+
 using namespace std;
 using namespace sf;
 
